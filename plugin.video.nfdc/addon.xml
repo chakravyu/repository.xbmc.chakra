@@ -9,8 +9,7 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <platform>all</platform>
-    <language></language>
+    <platform>all</platform>    
     <summary>NFDC(India)</summary>
     <description>Addon for watching free online movies produced by the National Film Development Corporation made available via their Cinemas of India</description>
   </extension>
