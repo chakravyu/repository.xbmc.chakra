@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="General">
+        <setting label="30100" type="enum" id="cache_period" values="Zero|Daily|Weekly|Monthly|Yearly" default="0"/>
+    </category>
+</settings>
