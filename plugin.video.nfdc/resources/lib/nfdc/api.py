@@ -7,7 +7,7 @@
     the NFDC (CinemasOfIndia) website.
 
 '''
-from scraper import (get_movies,get_max_page,get_movie_stream)
+from scraper import (get_movies,get_max_page,get_movie_data)
 
 
 class NFDC(object):
@@ -24,22 +24,22 @@ class NFDC(object):
 
     def get_max_page(self):
         '''Returns the maximum number of pages.'''
-        return get_max_page()
+        return get_max_page()     
 
-    def get_movie_stream(self,url):
-        '''Returns the url of the movie stream hosted on the 
-           movie site referred to by the input url
+    def get_movie_data(self,url):
+        '''Returns the movie info available at the given
+           url
         '''
-        return get_movie_stream(url)
-        
+        return get_movie_data(url)    
 
 
 
 class Movie(object):
 
-    def __init__(self, url, name=None, **kwargs):
+    def __init__(self, url, name=None, img_path=None,**kwargs):
         self.url = url
         self._name = name
+        self.img_path = img_path
         self._loaded = False
 
     @classmethod

@@ -31,6 +31,8 @@ def _html(url):
     '''Downloads the resource at the given url and parses via BeautifulSoup'''
     return BS(get(url), convertEntities=BS.HTML_ENTITIES)
 
+def get_title(url) :
+    return url.split('_')[1]
 
 def get_movies(page):
     '''Returns a list of movies. Each movie is a dict with
@@ -47,11 +49,18 @@ def get_movies(page):
     urls = set()
     for subj in subjs:
         url = _url(subj['href'])
+        img = subj.find("img")
+        img_path = ''
+
+        if img :
+            img_path = img['src']
+            #print 'img_path : ' + img_path
         if url not in urls:
             urls.add(url)
             items.append({
-                'name': subj['href'].split('_')[1],
+                'name': get_title(subj['href']),
                 'url': url,
+                'img_path' : img_path
             })
 
     return [item for item in items if item['name'] and item['url']]
@@ -71,36 +80,91 @@ def get_max_page():
         max_page = max(pages)
     return max_page
 
-def get_movie_stream(url):
+
+def get_movie_info(html,title,has_subs):
+    video_info = html.find("div", {"class":"video_info"})
+
+    plot = ''
+    cast = []
+    director = ''
+    genre = ''
+
+    info = {}
+    if video_info :
+        plot_tag = video_info.find("p")
+        if plot_tag :                    
+            plot = plot_tag.text
+            #print "plot : ", plot.encode('utf-8')
+
+        cast_tags = video_info.findAll("a", 
+                    {'href': lambda attr_value: attr_value.startswith("/actor/view")})                
+        for actor_tag in cast_tags :
+            actor = actor_tag.text
+            cast.append(actor)
+
+        director_tag = video_info.find("a", 
+                    {'href': lambda attr_value: attr_value.startswith("/director/view")})
+        if director_tag :
+            director = director_tag.text
+            #print "director : ", director
+
+        genre_tags = video_info.findAll("a", 
+                    {'href': lambda attr_value: attr_value.startswith("/browse/index?genre=")})
+        for genre_tag in genre_tags :
+            genre += (genre_tag.text + ' / ') 
+        genre = genre[:-2]
+        #print "genre :", genre
+
+        
+        if has_subs :
+            title += '  [English subtitles]'
+            #print 'title : ' + title
+        info = {
+                'plot' : plot,
+                'cast' : cast,
+                'director' : director,
+                'genre' : genre,
+                'title' : title
+                }
+    return info
+
+def get_movie_data(url):
     html = _html(url)
-    scriptjs = html.findAll('script',
-        {'type': lambda attr_value: attr_value == 'text/javascript'})
+    video_player_tag = html.find("div", {"id":"video_player"})
     
 
-    stream = {}
-    
-    for script in scriptjs:
+    movie_data = {}
+    #print "url : " , url
+    if video_player_tag :
         # get the movie stream (.m3u8 format) url
         regex_stream = re.compile(r'http.*\.m3u8')
-        stream_url_match = regex_stream.search(str(script.string))
+        #print "video_player_tag : " , video_player_tag.text
+        stream_url_match = regex_stream.search(str(video_player_tag.text))
 
         # get the subtitles file (.srt) url
         regex_sub = re.compile(r'http.*\.srt\"')
-        sub_url_match = regex_sub.search(str(script.string))
+        sub_url_match = regex_sub.search(str(video_player_tag.text))
 
         if stream_url_match:  
 
             name = url.split('_')[1]
             sub_url = ''
+            has_subs = False
             if sub_url_match:
                 sub_url = sub_url_match.group()[:-1]         
+                has_subs = True
+                #print "srt : " + sub_url
 
-            stream = {
+            movie_data = {
                     'name': name,
                     'url': stream_url_match.group(),
-                    'sub_url': sub_url
+                    'sub_url': sub_url,
+                    'info' : get_movie_info(html,get_title(url),has_subs)
             }
-            break
+            
 
-    return stream
+    return movie_data
+
+
+  
 
