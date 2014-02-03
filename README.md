@@ -20,6 +20,7 @@ To,
  * [XBMC](http://xbmc.org/) : for bringing the online world to our television sets.
 
 
+
 License
 =======
 
@@ -39,3 +40,7 @@ Attribution
 For crediting this work, please use the following attribution,
 
 [repository.xbmc.chakra](https://github.com/chakravyu/repository.xbmc.chakra) by [chakravyu](https://github.com/chakravyu) is licensed under [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_US)
+
+Disclaimer
+==========
+This software makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties, including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights. Further, this software does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on the internet web site where from data is retrieved or otherwise relating to such materials or on any sites linked to this addon. Videos are sourced from video-hosting websites that are having full rights to remove such access to video if required.
