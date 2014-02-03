@@ -1,7 +1,7 @@
 repository.xbmc.chakra
 ======================
 This XBMC repository currently contains the following addons,
- * plugin.video.nfdc : addon for watching free online movies produced by the [National Film Development Corporation](http://www.nfdcindia.com/) of India made available via their [Cinemas of India](http://www.cinemasofindia.com/) website.
+ * plugin.video.chakra.nfdc : addon for watching free online movies produced by the [National Film Development Corporation](http://www.nfdcindia.com/) of India made available via their [Cinemas of India](http://www.cinemasofindia.com/) website.
 
 
 Installation
