@@ -19,7 +19,11 @@ To,
  * [xbmcswift](https://github.com/jbeluch/xbmcswift2) project : for making it ridiculously easy to write xbmc addons.
  * [XBMC](http://xbmc.org/) : for bringing the online world to our television sets.
 
-
+Notes
+=====
+When installing the xbmcswift environment as described in http://www.xbmcswift.com/en/latest/installation.html,
+ * the virtualenv wrapper installation is done by 'sudo pip install virtualenvwrapper'
+ * before building the virtual environment, you need to source the virtualenvwrapper.sh (usually found at /usr/local/bin/virtualenvwrapper.sh)
 
 License
 =======
