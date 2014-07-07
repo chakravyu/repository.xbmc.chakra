@@ -8,6 +8,7 @@
 import logging
 import re,json,os
 from urllib2 import urlopen
+import urllib
 from urlparse import urljoin
 from BeautifulSoup import BeautifulSoup as BS
 
@@ -145,7 +146,7 @@ def get_movie_data(url):
         regex_stream = re.compile(r'http.*\.(m3u8|mp4)')
         #print "video_player_tag : " , video_player_tag.text
         stream_url_match = regex_stream.search(str(video_player_tag.text))
-        logging.info("stream_url : " + stream_url_match.group().decode('utf-8'))
+        logging.info("stream_url : " + urllib.unquote(stream_url_match.group()))
         # get the subtitles file (.srt) url
         regex_sub = re.compile(r'http.*\.srt\"')
         sub_url_match = regex_sub.search(str(video_player_tag.text))
