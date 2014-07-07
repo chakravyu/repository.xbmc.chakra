@@ -5,17 +5,20 @@
     This module contains some functions which do the website scraping for the
     API module. You shouldn't have to use this module directly.
 '''
+import logging
 import re,json,os
 from urllib2 import urlopen
 from urlparse import urljoin
 from BeautifulSoup import BeautifulSoup as BS
 
+# setup loggin for debugging
+#logging.basicConfig(level=logging.INFO)
 max_page = 0
 
 
 BASE_URL = 'http://www.cinemasofindia.com/browse/movies'
 def _url(path):
-    '''Returns a full url for the given path'''            
+    '''Returns a full url for the given path'''
     return urljoin(BASE_URL, path)
 
 
@@ -38,23 +41,25 @@ def get_movies(page):
     '''Returns a list of movies. Each movie is a dict with
     keys of 'name' and 'url'.
     '''
+
     url = _url('?page=' + str(page))
+    logging.info("movies page : " + url)
     html = _html(url)
     subjs = html.findAll('a',
         {'href': lambda attr_value: attr_value.startswith('/movie/view/')
                                     and len(attr_value) > len('/movie/view/')})
 
     items = []
-    
+
     urls = set()
     for subj in subjs:
         url = _url(subj['href'])
         img = subj.find("img")
         img_path = ''
-
+        logging.info("movie : " + url)
         if img :
             img_path = img['src']
-            #print 'img_path : ' + img_path
+            logging.info("img_path :" + img_path)
         if url not in urls:
             urls.add(url)
             items.append({
@@ -74,8 +79,8 @@ def get_max_page():
             {'href': lambda attr_value: attr_value.startswith(BASE_URL + '?page=')
                                         and len(attr_value) > len(BASE_URL + '?page=')})
         pages = []
-    
-        for page in pagejs:                                    
+
+        for page in pagejs:
             pages.append(int(page['href'].split('=')[1]))
         max_page = max(pages)
     return max_page
@@ -92,33 +97,33 @@ def get_movie_info(html,title,has_subs):
     info = {}
     if video_info :
         plot_tag = video_info.find("p")
-        if plot_tag :                    
+        if plot_tag :
             plot = plot_tag.text
-            #print "plot : ", plot.encode('utf-8')
+            logging.info("plot : " + plot.encode('utf-8'))
 
-        cast_tags = video_info.findAll("a", 
-                    {'href': lambda attr_value: attr_value.startswith("/actor/view")})                
+        cast_tags = video_info.findAll("a",
+                    {'href': lambda attr_value: attr_value.startswith("/actor/view")})
         for actor_tag in cast_tags :
             actor = actor_tag.text
             cast.append(actor)
 
-        director_tag = video_info.find("a", 
+        director_tag = video_info.find("a",
                     {'href': lambda attr_value: attr_value.startswith("/director/view")})
         if director_tag :
             director = director_tag.text
-            #print "director : ", director
+            logging.info("director : " + director)
 
-        genre_tags = video_info.findAll("a", 
+        genre_tags = video_info.findAll("a",
                     {'href': lambda attr_value: attr_value.startswith("/browse/index?genre=")})
         for genre_tag in genre_tags :
-            genre += (genre_tag.text + ' / ') 
+            genre += (genre_tag.text + ' / ')
         genre = genre[:-2]
-        #print "genre :", genre
+        logging.info("genre : " + genre)
 
-        
+
         if has_subs :
             title += '  [English subtitles]'
-            #print 'title : ' + title
+            logging.info("title : " + title)
         info = {
                 'plot' : plot,
                 'cast' : cast,
@@ -131,29 +136,30 @@ def get_movie_info(html,title,has_subs):
 def get_movie_data(url):
     html = _html(url)
     video_player_tag = html.find("div", {"id":"video_player"})
-    
+
 
     movie_data = {}
-    #print "url : " , url
+    logging.info("url : " + url)
     if video_player_tag :
         # get the movie stream (.m3u8 format) url
-        regex_stream = re.compile(r'http.*\.m3u8')
+        regex_stream = re.compile(r'http.*\.(m3u8|mp4)')
         #print "video_player_tag : " , video_player_tag.text
         stream_url_match = regex_stream.search(str(video_player_tag.text))
-
+        logging.info("stream_url : " + stream_url_match.group().decode('utf-8'))
         # get the subtitles file (.srt) url
         regex_sub = re.compile(r'http.*\.srt\"')
         sub_url_match = regex_sub.search(str(video_player_tag.text))
 
-        if stream_url_match:  
+        if stream_url_match:
 
             name = url.split('_')[1]
+            logging.info("name : " + name)
             sub_url = ''
             has_subs = False
             if sub_url_match:
-                sub_url = sub_url_match.group()[:-1]         
+                sub_url = sub_url_match.group()[:-1]
                 has_subs = True
-                #print "srt : " + sub_url
+                logging.info("srt : " + sub_url)
 
             movie_data = {
                     'name': name,
@@ -161,10 +167,10 @@ def get_movie_data(url):
                     'sub_url': sub_url,
                     'info' : get_movie_info(html,get_title(url),has_subs)
             }
-            
+
 
     return movie_data
 
 
-  
+
 

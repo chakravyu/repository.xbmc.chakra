@@ -1,4 +1,4 @@
-
+import logging
 import json
 from xbmcswift2 import Plugin,Module,actions,xbmc,xbmcgui
 from resources.lib.nfdc.api import NFDC
@@ -8,6 +8,7 @@ plugin = Plugin()
 api = NFDC()
 
 def get_cache_period() :
+
     choice = plugin.get_setting('cache_period', int);
     if choice == 0 :
         return 0
@@ -21,24 +22,23 @@ def get_cache_period() :
         return 365
 
     return 0
-    
+
 
 # for contect menu 'Movie Information'
 # context menu : 'Movie Information', 'XBMC.Action(Info)'
-# 
+#
 # http://mirrors.xbmc.org/docs/python-docs/stable/xbmcgui.html#ListItem
 # items = 'info_type' : 'video', 'info' : {'title': video['name'], 'year': int(video['year']), 'type': 'movie', 'plotoutline': description, 'plot': description, 'mpaa': mpaa})
 
 @plugin.route('/')
 def index():
-    #clear_cache()
     #print 'Cache period : ' + str(get_cache_period())
     return get_root_paths()
 
 @plugin.cached(TTL=60*24*365)
-def get_root_paths() :  
+def get_root_paths() :
     items = [{
-        'label': 'movies', 
+        'label': 'movies',
         'path': plugin.url_for('show_movies',page='1'),
         'context_menu' : [clear_cache_ctx()]
     }]
@@ -46,29 +46,17 @@ def get_root_paths() :
 
 @plugin.route('/movies/<page>')
 def show_movies(page):
-      
+
     page = int(page)
-    
-    movies = get_movies(page)    
+
     max_page = get_max_page()
-    
+
     if page == max_page:
         next_page = False
     else:
         next_page = True
 
-    items = [{
-        'label': movie.name,
-        'path': plugin.url_for('show_movie_stream', page=page,url=movie.url),
-        'info_type' : 'video',
-        'info' : get_movie_info(movie.url),
-        'context_menu' : [
-                        ('Movie Information', 'XBMC.Action(Info)'),
-                        clear_cache_ctx()
-                        ],
-        'icon' : movie.img_path,
-        'is_playable': True
-    } for movie in movies]
+    items = get_movie_items(page)
 
     sorted_items = sorted(items, key=lambda item: item['label'])
 
@@ -91,31 +79,53 @@ def clear_cache_ctx() :
     cc_url = plugin.url_for('clear_cache')
     return (label, actions.background(cc_url))
 
+def get_movies(page) :
+    return api.get_movies(page)
+
+def get_movie_info(url) :
+    movie = get_movie_data(url)
+    return movie['info']
+
 @plugin.route('/context/clear_cache/')
 def clear_cache() :
     plugin.clear_function_cache()
 
 @plugin.route('/movies/<page>/<url>/')
-def show_movie_stream(page,url):    
+def show_movie_stream(page,url):
     movie = get_movie_data(url)
     plugin.set_resolved_url(movie['url'], movie['sub_url'])
-            
-## Cached methods            
+
+
+## Cached methods
 @plugin.cached(TTL=get_cache_period()*60*24)
-def get_movies(page) :    
-    return api.get_movies(page)
+def get_movie_items(page) :
+
+    page = int(page)
+
+    movies = get_movies(page)
+
+    items = [{
+        'label': movie.name,
+        'path': plugin.url_for('show_movie_stream', page=page,url=movie.url),
+        'info_type' : 'video',
+        'info' : get_movie_info(movie.url),
+        'context_menu' : [
+                        ('Movie Information', 'XBMC.Action(Info)'),
+                        clear_cache_ctx()
+                        ],
+        'icon' : movie.img_path,
+        'is_playable': True
+    } for movie in movies]
+    return items
+
 
 @plugin.cached(TTL=get_cache_period()*60*24)
 def get_max_page() :
     api = NFDC()
     return api.get_max_page()
 
-def get_movie_info(url) :
-    movie = get_movie_data(url)
-    return movie['info']
-
 @plugin.cached(TTL=60*24*365)
-def get_movie_data(url) :    
+def get_movie_data(url) :
     return api.get_movie_data(url)
 
 

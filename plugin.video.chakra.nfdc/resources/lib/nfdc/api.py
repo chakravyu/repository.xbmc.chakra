@@ -24,13 +24,13 @@ class NFDC(object):
 
     def get_max_page(self):
         '''Returns the maximum number of pages.'''
-        return get_max_page()     
+        return get_max_page()
 
     def get_movie_data(self,url):
         '''Returns the movie info available at the given
            url
         '''
-        return get_movie_data(url)    
+        return get_movie_data(url)
 
 
 
