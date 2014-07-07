@@ -25,6 +25,11 @@ When installing the xbmcswift environment as described in http://www.xbmcswift.c
  * the virtualenv wrapper installation is done by 'sudo pip install virtualenvwrapper'
  * before building the virtual environment, you need to source the virtualenvwrapper.sh (usually found at /usr/local/bin/virtualenvwrapper.sh)
 
+To deploy a new version,
+ * update the version in the plugin addon file
+ * delete all existing zip files : run 'find -type f -name '*.zip' -delete' from the root directory.
+ * generate new version : run 'python ./repo_prep.py' from the root directory.
+
 License
 =======
 
@@ -33,8 +38,8 @@ Copyright © 2014 Cherian Mathew / Sunayana Ghosh
 [![Creative Commons License](http://i.creativecommons.org/l/by-nc/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc/4.0/deed.en_US)
 This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_US)
 
-Software distributed under the License is distributed on an "AS IS" basis, 
-WITHOUT WARRANTY OF ANY KIND, either express or implied. 
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied.
 See the License for the specific language governing rights and limitations under the License.
 
 
