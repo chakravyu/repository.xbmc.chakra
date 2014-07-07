@@ -144,10 +144,10 @@ def get_movie_data(url):
     if video_player_tag :
         # get the movie stream (.m3u8 format) url
         regex_stream = re.compile(r'http.*\.(m3u8|mp4)')
-        #print "video_player_tag : " , video_player_tag.text
         stream_url_match = regex_stream.search(str(video_player_tag.text))
         stream_url = urllib.unquote(stream_url_match.group())
         logging.info("stream_url : " + stream_url)
+
         # get the subtitles file (.srt) url
         regex_sub = re.compile(r'http.*\.srt\"')
         sub_url_match = regex_sub.search(str(video_player_tag.text))
