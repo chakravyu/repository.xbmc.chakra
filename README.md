@@ -7,7 +7,7 @@ This XBMC repository currently contains the following addons,
 Installation
 ============
 
- 1. Simply download the [repository zip](https://raw.github.com/chakravyu/repository.xbmc.chakra/master/repository.xbmc.chakra/repository.xbmc.chakra-1.0.0.zip) and install it in XBMC.
+ 1. Simply download the [repository zip](https://github.com/chakravyu/repository.xbmc.chakra/raw/master/repository.xbmc.chakra/repository.xbmc.chakra-1.1.0.zip) and install it in XBMC.
  2. Read the following [guide](http://wiki.xbmc.org/index.php?title=HOW-TO:Install_an_Add-on_from_a_zip_file) on the XBMC wiki to learn how to install addons from a repository.
 
 
