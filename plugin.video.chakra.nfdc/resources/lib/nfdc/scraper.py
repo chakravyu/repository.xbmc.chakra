@@ -47,7 +47,8 @@ def get_movies(page):
     logging.info("movies page : " + url)
     html = _html(url)
     subjs = html.findAll('a',
-        {'href': lambda attr_value: attr_value.startswith('/movie/view/')
+        {'href': lambda attr_value: attr_value is not None
+                                    and attr_value.startswith('/movie/view/')
                                     and len(attr_value) > len('/movie/view/')})
 
     items = []
