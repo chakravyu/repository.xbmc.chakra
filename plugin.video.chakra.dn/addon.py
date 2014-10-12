@@ -72,3 +72,6 @@ def get_todays_show_items() :
 def show_todays_show_stream(url):
     plugin.set_resolved_url(url)
 
+if __name__ == '__main__':
+    plugin.run()
+

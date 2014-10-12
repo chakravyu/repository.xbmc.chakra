@@ -20,7 +20,7 @@ class DN(object):
 
     def get_todays_shows(self):
         '''Returns a list of todays shows.'''
-        return [Show(**info) for info in get_todays_show_videos()]
+        return [Show(**info) for info in get_todays_show_videos('')]
 
 
 class Show(object):
