@@ -42,7 +42,9 @@ def get_todays_show_videos(show_date_url):
     '''    
     if show_date_url == '':
         html = _html(BASE_URL)
-    else :
+    elif show_date_url.startswith('/') :
+        html = _html(_url(show_date_url))
+    else:
         html = _html(show_date_url)
     
     # retrieve all the news item links
@@ -151,16 +153,14 @@ def get_todays_show_videos(show_date_url):
 
         logging.info("title : " + title)
 
-        media_type = None
+        media_type = 'video'
         if video:
-            media_url = video
-            media_type = 'video'
+            media_url = video            
         elif audio:
-            media_url = audio
-            media_type = 'video'
-        else:            
-            media_type = 'pictures'
+            media_url = audio            
+        else:                        
             title = '[News]' + title 
+            media_url = ''
 
         logging.info("media_type : " + media_type)
 
@@ -207,8 +207,7 @@ def get_weekly_archive_links():
 def get_web_exclusives(page):
     '''Returns a list of web exclusive videos. 
     '''
-
-    url = _url('/categories/19?page=' + str(page))    
+    url = _url('/categories/19?page=' + str(page))        
     return get_todays_show_videos(url)
 
 

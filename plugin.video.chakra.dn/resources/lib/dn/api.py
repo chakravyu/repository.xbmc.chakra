@@ -7,7 +7,7 @@
     the Democracy Now website.
 
 '''
-from scraper import (get_todays_show_videos,get_weekly_archive_links)
+from scraper import (get_todays_show_videos,get_weekly_archive_links,get_web_exclusives)
 
 
 class DN(object):
@@ -25,6 +25,7 @@ class DN(object):
     def get_weekly_archives(self):
         '''Returns a list of weekly archives.'''
         return [WeeklyArchive(**info) for info in get_weekly_archive_links()]
+
 
 
 class Show(object):

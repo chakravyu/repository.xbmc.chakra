@@ -25,7 +25,7 @@ class DNTest(unittest.TestCase):
 		get_weekly_archive_links()
 
 	def test_scraper_get_web_exclusives(self):
-		get_web_exclusives(1)
+		get_todays_show_videos('/categories/19?page=1')
 
 if __name__ == '__main__':
     unittest.main()

@@ -50,14 +50,18 @@ def get_root_paths() :
             'label': 'Todays Shows',
             'path': plugin.url_for('show_todays_shows')
         })
+    items.append({
+            'label': 'Web Exclusives',
+            'path': plugin.url_for('show_web_exclusives', page='26')
+        })
     return items
 
 @plugin.route('/Todays Shows')
 def show_todays_shows() :
     items = get_todays_show_items('')
-    return plugin.finish(items, update_listing=True)
+    return plugin.finish(items)
 
-
+@plugin.cached(TTL=60*24*365)
 def get_todays_show_items(url) :
     todays_shows = api.get_todays_shows(url)
 
@@ -76,14 +80,39 @@ def get_todays_show_items(url) :
     } for todays_show in todays_shows]
     return items
 
-@plugin.cached(TTL=60*24*7)
 @plugin.route('/Todays Shows/<url>/')
 def show_todays_show_stream(url):
     plugin.set_resolved_url(url)
 
+
 @plugin.route('/Weekly Archives/<url>')
 def show_weekly_archive_stream(url) :
     items = get_todays_show_items(url)
+    return plugin.finish(items)
+
+@plugin.route('/Web Exclusives/<page>/')
+def show_web_exclusives(page):
+    page = int(page)
+
+    items = get_todays_show_items('/categories/19?page=' + str(page))
+
+    if len(items) == 0:
+        next_page = False
+    else:
+        next_page = True
+
+    if next_page:
+        items.insert(0, {
+            'label': 'Next >>',
+            'path': plugin.url_for('show_web_exclusives', page=str(page + 1))
+        })
+
+    if page > 1:
+        items.insert(0, {
+            'label': '<< Previous',
+            'path': plugin.url_for('show_web_exclusives', page=str(page - 1))
+        })
+
     return plugin.finish(items, update_listing=True)
 
 if __name__ == '__main__':
