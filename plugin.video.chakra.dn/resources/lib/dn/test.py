@@ -10,7 +10,10 @@ api = DN()
 class DNTest(unittest.TestCase):
 
 	def test_api_get_todays_shows(self):
-		api.get_todays_shows()
+		shows = api.get_todays_shows()
+		for show in shows:
+			logging.info("show url : " + show.url)
+			logging.info("show media type : " + show.media_type)
 
 	def test_scraper_get_todays_show_videos(self):
 		get_todays_show_videos('')

@@ -25,8 +25,9 @@ class DN(object):
 
 class Show(object):
 
-    def __init__(self, url, title=None, poster_url=None,**kwargs):
+    def __init__(self, url, media_type=None, title=None, poster_url=None,**kwargs):
         self.url = url
+        self.media_type = media_type
         self.title = title
         self.poster_url = poster_url
         self._loaded = False

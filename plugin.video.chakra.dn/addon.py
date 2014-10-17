@@ -54,10 +54,11 @@ def show_todays_shows() :
 def get_todays_show_items() :
     todays_shows = api.get_todays_shows()
 
+
     items = [{
         'label': todays_show.title,
         'path': plugin.url_for('show_todays_show_stream', url=todays_show.url),
-        'info_type' : 'video',
+        'info_type' : todays_show.media_type,
         'info' : '',
         'context_menu' : [
                         ('Movie Information', 'XBMC.Action(Info)'),
