@@ -58,7 +58,7 @@ def get_todays_show_videos(show_date_url):
     for show in shows:
         title = ''
         media_url = ''
-        media_type = 'news'
+        media_type = ''
         poster = ''
         summary = ''
 
@@ -157,9 +157,9 @@ def get_todays_show_videos(show_date_url):
             media_type = 'video'
         elif audio:
             media_url = audio
-            media_type = 'audio'
+            media_type = 'video'
         else:            
-            media_type = 'news'
+            media_type = 'pictures'
             title = '[News]' + title 
 
         logging.info("media_type : " + media_type)

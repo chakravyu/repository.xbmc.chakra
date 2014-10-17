@@ -29,11 +29,12 @@ class DN(object):
 
 class Show(object):
 
-    def __init__(self, url, media_type=None, title=None, poster_url=None,**kwargs):
+    def __init__(self, url, media_type=None, title=None, poster_url=None, summary=None,**kwargs):
         self.url = url
         self.media_type = media_type
         self.title = title
         self.poster_url = poster_url
+        self.summary = summary
         self._loaded = False
 
     @classmethod
@@ -55,7 +56,7 @@ class WeeklyArchive(object):
         return cls(url=url)
 
     def __repr__(self):
-        return u"<Show '%s'>" % self.title
+        return u"<Weekly Archive '%s'>" % self.title
 
 
 

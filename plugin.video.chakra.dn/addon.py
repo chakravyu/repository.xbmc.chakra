@@ -66,7 +66,7 @@ def get_todays_show_items(url) :
         'label': todays_show.title,
         'path': plugin.url_for('show_todays_show_stream', url=todays_show.url),
         'info_type' : todays_show.media_type,
-        'info' : todays_show.summary,
+        'info' : {'plot': todays_show.summary, 'title' : todays_show.title},
         'context_menu' : [
                         ('Movie Information', 'XBMC.Action(Info)'),
                         clear_cache_ctx()
