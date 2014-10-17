@@ -56,7 +56,12 @@ def get_todays_show_videos(show_date_url):
     urls = set()
 
     for show in shows:
-        
+        title = ''
+        media_url = ''
+        media_type = 'news'
+        poster = ''
+        summary = ''
+
         # div which contains the video link and poster link
         video_tag = show.find('a',
             {'href': lambda attr_value: attr_value is not None
@@ -110,19 +115,21 @@ def get_todays_show_videos(show_date_url):
             if title_tags and len(title_tags) >= 2:
                 title_tag = title_tags[1]
 
-        title = ""
+        title = ''
         # in the case of the full show there is no title
         if title_tag :
-            if title_tag.string:
-                title = title_tag.string.replace('\n', '')
-            elif video_tag:
+            if title_tag.text:
+                title = title_tag.text.replace('\n', '')
+            elif video_tag and 'alt' in video_tag:
                     title = video_tag['alt']
-            elif poster_tag:
+            elif poster_tag and 'alt' in poster_tag:
                     title = poster_tag['alt']
         else :
             title = 'Full Show'
 
-        logging.info("title : " + title)
+        
+
+        
 
         # retrieve video title
         summary_tag = show.find('div',
@@ -133,15 +140,17 @@ def get_todays_show_videos(show_date_url):
         if summary_tag :
             summary_tag_p = summary_tag.find('p')
 
-        if summary_tag_p :
-            if summary_tag_p.string:
-                summary = summary_tag_p.string.replace('\n', '')
-            else:
-                summary = 'Nested tags in summary. Ignoring for now'
+        if summary_tag_p:            
+            summary = summary_tag_p.text.replace('\n', '')            
         else :
             summary = ''
         logging.info("summary : " + summary)
         
+        if title == '' and summary != '':
+            title = summary[:40] + '...'
+
+        logging.info("title : " + title)
+
         media_type = None
         if video:
             media_url = video
@@ -164,7 +173,8 @@ def get_todays_show_videos(show_date_url):
         })
         logging.info('\n')
 
-    return [item for item in items if item['url'] and item['media_type']]
+    return [item for item in items if (item['url'] and item['media_type']) 
+                    or item['title'] or item['summary']]
 
 def get_weekly_archive_links():
     html = _html(BASE_URL)

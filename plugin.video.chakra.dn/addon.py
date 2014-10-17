@@ -39,27 +39,34 @@ def index():
     return get_root_paths()
 
 def get_root_paths() :
+    weekly_archives = api.get_weekly_archives()
     items = [{
-        'label': 'Todays Shows',
-        'path': plugin.url_for('show_todays_shows'),
+        'label': weekly_archive.title,
+        'path': plugin.url_for('show_weekly_archive_stream', url=weekly_archive.url),
         'context_menu' : [clear_cache_ctx()]
-    }]
+    }for weekly_archive in weekly_archives]
+
+    items.insert(0, {
+            'label': 'Todays Shows',
+            'path': plugin.url_for('show_todays_shows')
+        })
     return items
 
 @plugin.route('/Todays Shows')
 def show_todays_shows() :
-    items = get_todays_show_items()
+    items = get_todays_show_items('')
     return plugin.finish(items, update_listing=True)
 
-def get_todays_show_items() :
-    todays_shows = api.get_todays_shows()
+
+def get_todays_show_items(url) :
+    todays_shows = api.get_todays_shows(url)
 
 
     items = [{
         'label': todays_show.title,
         'path': plugin.url_for('show_todays_show_stream', url=todays_show.url),
         'info_type' : todays_show.media_type,
-        'info' : '',
+        'info' : todays_show.summary,
         'context_menu' : [
                         ('Movie Information', 'XBMC.Action(Info)'),
                         clear_cache_ctx()
@@ -69,9 +76,15 @@ def get_todays_show_items() :
     } for todays_show in todays_shows]
     return items
 
+@plugin.cached(TTL=60*24*7)
 @plugin.route('/Todays Shows/<url>/')
 def show_todays_show_stream(url):
     plugin.set_resolved_url(url)
+
+@plugin.route('/Weekly Archives/<url>')
+def show_weekly_archive_stream(url) :
+    items = get_todays_show_items(url)
+    return plugin.finish(items, update_listing=True)
 
 if __name__ == '__main__':
     plugin.run()
