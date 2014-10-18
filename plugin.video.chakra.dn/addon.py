@@ -39,6 +39,7 @@ def index():
     #plugin.clear_function_cache()
     return get_root_paths()
 
+@plugin.cached(TTL=60*24*1)
 def get_root_paths() :
     weekly_archives = api.get_weekly_archives()
     items = [{
@@ -62,6 +63,7 @@ def get_root_paths() :
     
     return items
 
+@plugin.cached(TTL=60*24*1)
 @plugin.route('/Todays Shows')
 def show_todays_shows() :
     items = get_todays_show_items('')
@@ -69,8 +71,6 @@ def show_todays_shows() :
 
 
 def get_todays_show_items(url) :
-
-
     todays_shows = api.get_todays_shows(url)
 
     items = [{
@@ -87,28 +87,37 @@ def get_todays_show_items(url) :
     } for todays_show in todays_shows]
     return items
 
-@plugin.cached(TTL=60*24*7)
+@plugin.cached(TTL=60*24*1)
 @plugin.route('/Todays Shows/<url>/')
 def show_todays_show_stream(url):
     plugin.set_resolved_url(url)
 
-@plugin.cached(TTL=60*24*365)
+
+@plugin.route('/Weekly Archives')
+def show_weekly_archives() :
+    weekly_archives = api.get_weekly_archives()
+    items = []
+    for weekly_archive in weekly_archives :
+        shows = show_weekly_archive_stream(weekly_archive.url)
+        for show in shows:
+            items.append(show)
+    return items
+    
+@plugin.cached(TTL=60*24*7)
 @plugin.route('/Weekly Archives/<url>')
 def show_weekly_archive_stream(url) :
     items = get_todays_show_items(url)
     return plugin.finish(items)
 
-
 @plugin.route('/Web Exclusives/<page>/')
 def show_web_exclusives(page):
     return show_paged_shows('/categories/19?page=', page);
-
 
 @plugin.route('/Amy\'s Column/<page>/')
 def show_amys_columns(page):
     return show_paged_shows('/categories/11?page=', page);
 
-@plugin.cached(TTL=60*24*365)
+@plugin.cached(TTL=60*24*1)
 @plugin.route('/<path>/<page>/')
 def show_paged_shows(path, page):
     page = int(page)
