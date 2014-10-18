@@ -32,14 +32,12 @@ def clear_cache_ctx() :
 def clear_cache() :
     plugin.clear_function_cache()
 
-
 @plugin.route('/')
 def index():
     #print 'Cache period : ' + str(get_cache_period())
     #plugin.clear_function_cache()
     return get_root_paths()
 
-@plugin.cached(TTL=60*24*1)
 def get_root_paths() :
     weekly_archives = api.get_weekly_archives()
     items = [{
@@ -63,7 +61,7 @@ def get_root_paths() :
     
     return items
 
-@plugin.cached(TTL=60*24*1)
+
 @plugin.route('/Todays Shows')
 def show_todays_shows() :
     items = get_todays_show_items('')
@@ -117,7 +115,6 @@ def show_web_exclusives(page):
 def show_amys_columns(page):
     return show_paged_shows('/categories/11?page=', page);
 
-@plugin.cached(TTL=60*24*1)
 @plugin.route('/<path>/<page>/')
 def show_paged_shows(path, page):
     page = int(page)
@@ -143,7 +140,7 @@ def show_paged_shows(path, page):
             'path': plugin.url_for('show_paged_shows', path = str(path), page=str(page - 1))
         })
 
-    return plugin.finish(items, update_listing=True)
+    return plugin.finish(items)
 
 if __name__ == '__main__':
     plugin.run()
