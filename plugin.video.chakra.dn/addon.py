@@ -41,37 +41,28 @@ def index():
 
 @plugin.cached(TTL=60*10)
 def get_root_paths() :
-    weekly_archives = api.get_weekly_archives()
+    weekly_archives = api.get_shows()
     items = [{
         'label': weekly_archive.title,
         'path': plugin.url_for('show_weekly_archive_stream', url=weekly_archive.url),
         'context_menu' : [clear_cache_ctx()]
-    }for weekly_archive in weekly_archives]
+    } for weekly_archive in weekly_archives]
 
-    items.insert(0, {
-            'label': 'Todays Shows',
-            'path': plugin.url_for('show_todays_shows')
-        })
-    items.append({
-            'label': 'Web Exclusives',
-            'path': plugin.url_for('show_web_exclusives', page='1')
-        })
-    items.append({
-            'label': 'Amy\'s Columns',
-            'path': plugin.url_for('show_amys_columns', page='1')
-        })
+    # items.append({
+    #         'label': 'Web Exclusives',
+    #         'path': plugin.url_for('show_web_exclusives', page='1')
+    #     })
+    # items.append({
+    #         'label': 'Amy\'s Columns',
+    #         'path': plugin.url_for('show_amys_columns', page='1')
+    #     })
     
     return items
 
-@plugin.cached(TTL=60*10)
-@plugin.route('/Todays Shows')
-def show_todays_shows() :
-    items = get_todays_show_items('')
-    return plugin.finish(items)
 
 @plugin.cached(TTL=60*10)
-def get_todays_show_items(url) :
-    todays_shows = api.get_todays_shows(url)
+def get_show_items(url) :
+    todays_shows = api.get_show_items(url)
 
     items = [{
         'label': todays_show.title,
@@ -95,7 +86,7 @@ def show_todays_show_stream(url):
 @plugin.cached(TTL=60*10)
 @plugin.route('/Weekly Archives')
 def show_weekly_archives() :
-    weekly_archives = api.get_weekly_archives()
+    weekly_archives = api.get_shows()
     items = []
     for weekly_archive in weekly_archives :
         shows = show_weekly_archive_stream(weekly_archive.url)
@@ -106,7 +97,7 @@ def show_weekly_archives() :
 @plugin.cached(TTL=60*24*7)
 @plugin.route('/Weekly Archives/<url>')
 def show_weekly_archive_stream(url) :
-    items = get_todays_show_items(url)
+    items = get_show_items(url)
     return plugin.finish(items)
 
 @plugin.cached(TTL=60*24*7)
@@ -126,7 +117,7 @@ def show_paged_shows(path, page):
 
     items = []
 
-    items = get_todays_show_items(path + str(page))
+    items = get_show_items(path + str(page))
 
     if len(items) == 0:
         next_page = False

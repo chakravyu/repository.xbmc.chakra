@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="repository.xbmc.chakra" name="Chakravyu's XBMC Addons" version="1.1.0" provider-name="Cherian Mathew (chakravyu)">
-  <extension point="xbmc.addon.repository" name="Chakravyu' XBMC Addon Repository">
-    <info compressed="false">https://github.com/chakravyu/repository.xbmc.chakra/raw/master/addons.xml</info>
-    <checksum>https://github.com/chakravyu/repository.xbmc.chakra/raw/master/addons.xml.md5</checksum>
-    <datadir zip="true">https://github.com/chakravyu/repository.xbmc.chakra/raw/master/</datadir>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary>Install chakravyu's Addons</summary>
-    <description>Download and install addons by chakravyu</description>
-    <platform>all</platform>
-  </extension>
-</addon>
-
 <addon id="plugin.video.chakra.nfdc" name="NFDC" version="1.1.2" provider-name="Cherian Mathew (chakravyu)">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -31,11 +18,11 @@
   </extension>
 </addon>
 
-<addon id="plugin.video.chakra.dn" name="DN!" version="1.0.6" provider-name="Cherian Mathew (chakravyu)">
+<addon id="plugin.video.chakra.dn" name="DN!" version="2.0.0" provider-name="Cherian Mathew (chakravyu)">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.xbmcswift2" version="2.4.0"/>
-    <import addon="script.module.beautifulsoup" version="3.0.8" />
+    <import addon="script.module.beautifulsoup4" version="4.5.3" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>
@@ -46,6 +33,19 @@
     <description>Addon for watching daily shows from the independent news organisation, Democracy Now</description>
     <disclaimer>This software makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties, including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights. Further, this software does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on the internet web site where from data is retrieved or otherwise relating to such materials or on any sites linked to this addon. Videos are sourced from video-hosting websites that are having full rights to remove such access to video if required.</disclaimer>
 
+  </extension>
+</addon>
+
+<addon id="repository.xbmc.chakra" name="Chakravyu's XBMC Addons" version="1.2.0" provider-name="Cherian Mathew (chakravyu)">
+  <extension point="xbmc.addon.repository" name="Chakravyu' XBMC Addon Repository">
+    <info compressed="false">https://github.com/chakravyu/repository.xbmc.chakra/raw/master/addons.xml</info>
+    <checksum>https://github.com/chakravyu/repository.xbmc.chakra/raw/master/addons.xml.md5</checksum>
+    <datadir zip="true">https://github.com/chakravyu/repository.xbmc.chakra/raw/master/</datadir>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Install chakravyu's Addons</summary>
+    <description>Download and install addons by chakravyu</description>
+    <platform>all</platform>
   </extension>
 </addon>
 </addons>

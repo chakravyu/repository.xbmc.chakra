@@ -10,14 +10,15 @@ import re,json,os
 from urllib2 import urlopen
 import urllib
 from urlparse import urljoin
-from BeautifulSoup import BeautifulSoup as BS
+from bs4  import BeautifulSoup as BS
+
 
 # setup loggin for debugging
-#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 max_page = 0
 
 
-BASE_URL = 'http://m.democracynow.org'
+BASE_URL = 'https://www.democracynow.org/'
 def _url(path):
     '''Returns a full url for the given path'''
     return urljoin(BASE_URL, path)
@@ -33,151 +34,136 @@ def get(url):
 
 def _html(url):
     '''Downloads the resource at the given url and parses via BeautifulSoup'''
-    return BS(get(url), convertEntities=BS.HTML_ENTITIES)
+    return BS(get(url), "html.parser")
 
 
-def get_todays_show_videos(show_date_url):
-    '''Return  a list of videos from daily shows. Each show is a dict with
-    keys of 'name' and 'url'.
-    '''    
-    if show_date_url == '':
-        html = _html(BASE_URL)
-    elif show_date_url.startswith('/') :
-        html = _html(_url(show_date_url))
-    else:
-        html = _html(show_date_url)
-    
-    # retrieve all the news item links
-    shows = html.findAll('li',
-        {'class': lambda attr_value: attr_value is not None
-                                    and attr_value.startswith('news_item')
-                                    and len(attr_value) >= len('news_item')})
-    
+def get_show_videos(show_date_url):
+    '''
+    Return  a list of videos from a particular show. 
+    Each show is a dict with show items.
+    '''
+    html = _html(_url(show_date_url))
+
     items = []
 
     urls = set()
 
-    for show in shows:
+    player = html.find('div',
+        {'class': lambda attr_value: attr_value is not None
+            and attr_value.startswith('daily_show_container')
+            and len(attr_value) >= len('daily_show_container')})
+
+
+    full_show = json.loads(unicode(html.find(id="show_video").contents[0].contents[0]))
+    full_show_video = str(full_show['high_res_video'])
+    full_show_audio = str(full_show['audio'])
+    full_show_img = str(full_show['image'])
+
+    video_content_details = player.find('div',
+                {'class': lambda attr_value: attr_value is not None
+                    and attr_value.startswith('show_content_details')
+                    and len(attr_value) >= len('show_content_details')})
+
+
+    content_index = 0
+    ITEM_URL='url'
+    ITEM_TITLE='title'
+    ITEM_MEDIA_TYPE='media_type'
+    ITEM_POSTER_URL='poster_url'
+    ITEM_SUMMARY='summary'
+
+    items.append({
+        ITEM_TITLE: 'Full Show',
+        ITEM_URL: full_show_video,
+        ITEM_MEDIA_TYPE : 'video',
+        ITEM_POSTER_URL : full_show_img,
+        ITEM_SUMMARY : 'Full Show'
+    })
+    for content_detail in video_content_details:
         title = ''
         media_url = ''
-        media_type = ''
-        poster = ''
+        poster_url = full_show_img
         summary = ''
 
-        # div which contains the video link and poster link
-        video_tag = show.find('a',
-            {'href': lambda attr_value: attr_value is not None
-                                        and (attr_value.find('.mp4') != -1)})
-        video = None
-        if video_tag:
-            # retrieve video link and replace ipod (low res) link with flash (higher res)     
-            video = video_tag['href'].replace('ipod', 'flash')
-            # in the case that the video link path is relative 
-            if video.startswith('/') :
-                video = _url(video)
-            logging.info("video : " + video)
+        video_description_tag = content_detail.find('div',
+                      {'class': lambda attr_value: attr_value is not None
+                           and attr_value.startswith('description')
+                           and len(attr_value) >= len('description')})
+        video_description = video_description_tag.find('a',
+                        {'data-player-seek': lambda attr_value: attr_value is not None})
+        video_seek = None
+        video_title = None
+        show_media = full_show_video
+        if video_description:
+            video_seek = str(video_description['data-player-seek'])
+            title = video_description.text
+            if content_index > 0:
+                items[content_index][ITEM_URL] = items[content_index][ITEM_URL] + '&end=' + video_seek
 
-        # div which contains the audio link and poster link
-        audio_tag = show.find('a',
-            {'href': lambda attr_value: attr_value is not None
-                                        and (attr_value.find('.mp3') != -1)})        
-        audio = None
-        if audio_tag:
-            audio = audio_tag['href']
-            # in the case that the audio link path is relative 
-            if audio.startswith('/') :
-                audio = _url(audio)       
+            video_links_tag = content_detail.find('div',
+                {'class': lambda attr_value: attr_value is not None
+                     and attr_value.startswith('video_links')
+                     and len(attr_value) >= len('video_links')})
 
-            logging.info("audio : " + audio)
+            if video_links_tag is None:
+                show_media = full_show_audio
+            else:
+                transcript_tag = video_links_tag.find('a', text=re.compile(r'Transcript'))
+                show_video_page = transcript_tag['href'].split('#')[0]
+
+                show_video_image_containers = html.findAll('a',
+                   {'href': lambda attr_value: attr_value is not None
+                       and attr_value.startswith(show_video_page)
+                       and len(attr_value) >= len(show_video_page)})
+                if len(show_video_image_containers) >= 2:
+                    show_video_img = show_video_image_containers[1].find('img')
+                    if show_video_img:
+                        poster_url = show_video_img['src']
 
 
-        # div which contains the audio link and poster link
-        poster_tag = show.find('img',
-            {'src': lambda attr_value: attr_value is not None
-                                        and (attr_value.find('.jpg') != -1
-                                            or (attr_value.find('.jpeg') != -1))})
-        poster = None
-        if poster_tag:
-            poster = poster_tag['src']
-            # in the case that the audio link path is relative 
-            if poster.startswith('/') :
-                poster = _url(poster)           
-            logging.info("poster : " + poster)
+            media_url = show_media + '?start=' + video_seek
 
-        # retrieve title
-        title_tag = show.find('a',
-            {'href': lambda attr_value: attr_value is not None
-                                        and (attr_value.startswith('/headlines')
-                                        or attr_value.startswith('/stories')
-                                        or attr_value.startswith('/web_exclusives'))})
-        if not title_tag:
-            title_tags = show.findAll('a',
-                {'href': lambda attr_value: attr_value is not None                                            
-                                            and attr_value.startswith('/columns')})
-            if title_tags and len(title_tags) >= 2:
-                title_tag = title_tags[1]
-
-        title = ''
-        # in the case of the full show there is no title
-        if title_tag :
-            if title_tag.text:
-                title = title_tag.text.replace('\n', '')
-            elif video_tag and 'alt' in video_tag:
-                    title = video_tag['alt']
-            elif poster_tag and 'alt' in poster_tag:
-                    title = poster_tag['alt']
-        else :
-            title = 'Full Show'
-
-        
-
-        
-
-        # retrieve video title
-        summary_tag = show.find('div',
-            {'class': lambda attr_value: attr_value is not None
-                                        and attr_value == 'more_summary'})
-        summary_tag_p = None
-
-        if summary_tag :
-            summary_tag_p = summary_tag.find('p')
-
-        if summary_tag_p:            
-            summary = summary_tag_p.text.replace('\n', '')            
-        else :
-            summary = ''
-        logging.info("summary : " + summary)
-        
-        if title == '' and summary != '':
-            title = summary[:40] + '...'
-
-        logging.info("title : " + title)
-
-        media_type = 'video'
-        if video:
-            media_url = video            
-        elif audio:
-            media_url = audio            
-        else:                        
-            title = '[News]' + title 
-            media_url = ''
-
-        logging.info("media_type : " + media_type)
+        content_index = content_index + 1
 
         items.append({
-            'title': title,
-            'url': media_url,
-            'media_type' : media_type,
-            'poster_url' : poster,
-            'summary' : summary
+            ITEM_TITLE: title,
+            ITEM_URL: media_url,
+            ITEM_MEDIA_TYPE: 'video',
+            ITEM_POSTER_URL: poster_url,
+            ITEM_SUMMARY: summary
         })
-        logging.info('\n')
 
-    return [item for item in items if (item['url'] and item['media_type']) 
-                    or item['title'] or item['summary']]
+
+    return [item for item in items if (item['url'] and item['media_type'])
+            or item['title'] or item['summary']]
+
+def get_shows():
+    html = _html(_url('/shows'))
+    # retrieve all the news item links
+    shows_info = html.find('div',
+        {'class': lambda attr_value: attr_value is not None
+            and attr_value.startswith('recent_shows')
+            and len(attr_value) >= len('recent_shows')})
+    show_details = shows_info.findAll('div',
+        {'class': lambda attr_value: attr_value is not None
+          and attr_value.startswith('row heading')
+          and len(attr_value) >= len('row heading')})
+
+    shows = []
+
+    for detail in show_details:
+        show_title = detail.find('h5').text
+        full_show_tag = detail.find('a', text=re.compile(r'Full Show'))
+        show_path = full_show_tag['href']
+        shows.append({
+            'title': show_title,
+            'url': _url(show_path)
+        })
+    shows[0]['title'] = 'Todays Show'
+    return shows
 
 def get_weekly_archive_links():
-    html = _html(BASE_URL)
+    html = _url('/shows')
     
     # retrieve all the news item links
     weekly_archives = html.findAll('div',
@@ -208,7 +194,7 @@ def get_web_exclusives(page):
     '''Returns a list of web exclusive videos. 
     '''
     url = _url('/categories/19?page=' + str(page))        
-    return get_todays_show_videos(url)
+    return get_show_videos(url)
 
 
 

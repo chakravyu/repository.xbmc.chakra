@@ -7,7 +7,7 @@
     the Democracy Now website.
 
 '''
-from scraper import (get_todays_show_videos,get_weekly_archive_links,get_web_exclusives)
+from scraper import (get_shows, get_show_videos,get_weekly_archive_links,get_web_exclusives)
 
 
 class DN(object):
@@ -18,15 +18,33 @@ class DN(object):
     def __init__(self):
         pass
 
-    def get_todays_shows(self, url):
+    def get_shows(self):
         '''Returns a list of todays shows.'''
-        return [Show(**info) for info in get_todays_show_videos(url)]
+        return [ShowDetails(**show) for show in get_shows()]
+
+    def get_show_items(self, url):
+        '''Returns a list of todays shows.'''
+        return [Show(**info) for info in get_show_videos(url)]
 
     def get_weekly_archives(self):
         '''Returns a list of weekly archives.'''
         return [WeeklyArchive(**info) for info in get_weekly_archive_links()]
 
 
+
+class ShowDetails(object):
+
+    def __init__(self, title, url, **kwargs):
+        self.title = title
+        self.url = url
+        self._loaded = False
+
+    @classmethod
+    def from_url(cls, url):
+        return cls(url=url)
+
+    def __repr__(self):
+        return u"<Show Date'%s'>" % self.title
 
 class Show(object):
 
