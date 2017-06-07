@@ -1,7 +1,7 @@
 repository.xbmc.chakra
 ======================
-This XBMC repository currently contains the following addons,
- * plugin.video.chakra.nfdc : addon for watching free online movies produced by the [National Film Development Corporation](http://www.nfdcindia.com/) of India made available via their [Cinemas of India](http://www.cinemasofindia.com/) website. __NOTE: Since NFDC has moved to a payment model, this plugin no longer works and will be removed soon__
+
+This XBMC repository currently contains the following addons, 
  * plugin.video.chakra.dn : addon for watching daily news from Democracy Now!
 
 Installation
@@ -14,8 +14,7 @@ Installation
 Acknowledgements
 ================
 
-To,
- * [NFDC](http://www.nfdcindia.com/) : for supporting, producing and now making available online some of the classics of Indian cinema.
+To, 
  * [xbmcswift](https://github.com/jbeluch/xbmcswift2) project : for making it ridiculously easy to write xbmc addons.
  * [XBMC](http://xbmc.org/) : for bringing the online world to our television sets.
 
@@ -26,8 +25,8 @@ When installing the xbmcswift environment as described in http://www.xbmcswift.c
  * before building the virtual environment, you need to source the virtualenvwrapper.sh (usually found at /usr/local/bin/virtualenvwrapper.sh)
 
 To deploy a new version,
- * update the version in the plugin addon file
- * delete all existing zip files : run 'find -type f -name '*.zip' -delete' from the root directory.
+ * update the version in the plugin addon.xml file
+ * update the version in the repository addon.xml file
  * generate new version : run 'python ./repo_prep.py' from the root directory.
 
 License
