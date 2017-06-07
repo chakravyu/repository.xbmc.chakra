@@ -8,7 +8,7 @@ Installation
 ============
 
  1. Simply download the [repository zip](https://github.com/chakravyu/repository.xbmc.chakra/blob/master/repository.xbmc.chakra/repository.xbmc.chakra-1.2.0.zip) and install it in XBMC.
- 2. Read the following [guide](http://wiki.xbmc.org/index.php?title=HOW-TO:Install_an_Add-on_from_a_zip_file) on the XBMC wiki to learn how to install addons from a repository.
+ 2. Read the following [guide](http://kodi.wiki/view/HOW-TO:Install_add-ons) on the XBMC wiki to learn how to install addons from a repository.
 
 
 Acknowledgements
@@ -32,7 +32,7 @@ To deploy a new version,
 License
 =======
 
-Copyright © 2014 - 2016 Cherian Mathew / Sunayana Ghosh
+Copyright © 2014 - 2017 Cherian Mathew / Sunayana Ghosh
 
 [![Creative Commons License](http://i.creativecommons.org/l/by-nc/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc/4.0/deed.en_US)
 This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/deed.en_US)
