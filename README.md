@@ -1,13 +1,13 @@
 repository.xbmc.chakra
 ======================
 
-This XBMC repository currently contains the following addons, 
+This KODI repository currently contains the following addons, 
  * plugin.video.chakra.dn : addon for watching daily news from Democracy Now!
 
 Installation
 ============
 
- 1. Simply download the [repository zip](https://github.com/chakravyu/repository.xbmc.chakra/raw/master/repository.xbmc.chakra/repository.xbmc.chakra-1.1.0.zip) and install it in XBMC.
+ 1. Simply download the [repository zip](https://github.com/chakravyu/repository.xbmc.chakra/blob/master/repository.xbmc.chakra/repository.xbmc.chakra-1.2.0.zip) and install it in XBMC.
  2. Read the following [guide](http://wiki.xbmc.org/index.php?title=HOW-TO:Install_an_Add-on_from_a_zip_file) on the XBMC wiki to learn how to install addons from a repository.
 
 
@@ -16,11 +16,11 @@ Acknowledgements
 
 To, 
  * [xbmcswift](https://github.com/jbeluch/xbmcswift2) project : for making it ridiculously easy to write xbmc addons.
- * [XBMC](http://xbmc.org/) : for bringing the online world to our television sets.
+ * [KODI](https://kodi.tv/) : for bringing the online world to our television sets.
 
 Developer Notes
 ===============
-When installing the xbmcswift environment as described in http://www.xbmcswift.com/en/latest/installation.html,
+When installing the xbmcswift environment as described at http://xbmcswift2.readthedocs.io/en/latest/installation.html,
  * the virtualenv wrapper installation is done by 'sudo pip install virtualenvwrapper'
  * before building the virtual environment, you need to source the virtualenvwrapper.sh (usually found at /usr/local/bin/virtualenvwrapper.sh)
 
