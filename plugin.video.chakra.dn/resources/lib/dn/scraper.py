@@ -12,11 +12,14 @@ import urllib
 from urlparse import urljoin
 from bs4  import BeautifulSoup as BS
 
+ITEM_URL = 'url'
+ITEM_TITLE = 'title'
+ITEM_MEDIA_TYPE = 'media_type'
+ITEM_POSTER_URL = 'poster_url'
+ITEM_SUMMARY = 'summary'
 
-# setup loggin for debugging
-logging.basicConfig(level=logging.INFO)
 max_page = 0
-
+shows_cache = {}
 
 BASE_URL = 'https://www.democracynow.org/'
 def _url(path):
@@ -42,7 +45,7 @@ def get_show_videos(show_date_url):
     Return  a list of videos from a particular show. 
     Each show is a dict with show items.
     '''
-    html = _html(_url(show_date_url))
+    html = _html(show_date_url)
 
     items = []
 
@@ -52,7 +55,6 @@ def get_show_videos(show_date_url):
         {'class': lambda attr_value: attr_value is not None
             and attr_value.startswith('daily_show_container')
             and len(attr_value) >= len('daily_show_container')})
-
 
     full_show = json.loads(unicode(html.find(id="show_video").contents[0].contents[0]))
     full_show_video = str(full_show['high_res_video'])
@@ -64,13 +66,7 @@ def get_show_videos(show_date_url):
                     and attr_value.startswith('show_content_details')
                     and len(attr_value) >= len('show_content_details')})
 
-
     content_index = 0
-    ITEM_URL='url'
-    ITEM_TITLE='title'
-    ITEM_MEDIA_TYPE='media_type'
-    ITEM_POSTER_URL='poster_url'
-    ITEM_SUMMARY='summary'
 
     items.append({
         ITEM_TITLE: 'Full Show',
@@ -91,8 +87,7 @@ def get_show_videos(show_date_url):
                            and len(attr_value) >= len('description')})
         video_description = video_description_tag.find('a',
                         {'data-player-seek': lambda attr_value: attr_value is not None})
-        video_seek = None
-        video_title = None
+
         show_media = full_show_video
         if video_description:
             video_seek = str(video_description['data-player-seek'])
@@ -105,21 +100,14 @@ def get_show_videos(show_date_url):
                      and attr_value.startswith('video_links')
                      and len(attr_value) >= len('video_links')})
 
+            global shows_cache
             if video_links_tag is None:
                 show_media = full_show_audio
             else:
                 transcript_tag = video_links_tag.find('a', text=re.compile(r'Transcript'))
                 show_video_page = transcript_tag['href'].split('#')[0]
-
-                show_video_image_containers = html.findAll('a',
-                   {'href': lambda attr_value: attr_value is not None
-                       and attr_value.startswith(show_video_page)
-                       and len(attr_value) >= len(show_video_page)})
-                if len(show_video_image_containers) >= 2:
-                    show_video_img = show_video_image_containers[1].find('img')
-                    if show_video_img:
-                        poster_url = show_video_img['src']
-
+                poster_url = shows_cache.get(show_video_page, full_show_img)
+                # poster_url = shows_cache.get(show_video_page, "https://www.democracynow.org/images/story/13/37013/w320/S09_Kushner.jpg")
 
             media_url = show_media + '?start=' + video_seek
 
@@ -144,6 +132,25 @@ def get_shows():
         {'class': lambda attr_value: attr_value is not None
             and attr_value.startswith('recent_shows')
             and len(attr_value) >= len('recent_shows')})
+
+
+    # build shows cache
+
+    shows_info_row = shows_info.findAll('div',
+        {'class': lambda attr_value: attr_value is not None
+            and attr_value.startswith('story')
+            and len(attr_value) >= len('story')})
+
+    global shows_cache
+    for show_info in shows_info_row:
+        show_story = show_info.find('a',
+                {'data-ga-action': lambda attr_value: attr_value is not None})
+        show_url = show_story['href']
+        show_img = show_story.find('img')
+        show_img_url = show_img['src']
+        shows_cache[show_url] = show_img_url
+
+
     show_details = shows_info.findAll('div',
         {'class': lambda attr_value: attr_value is not None
           and attr_value.startswith('row heading')
@@ -162,39 +169,36 @@ def get_shows():
     shows[0]['title'] = 'Todays Show'
     return shows
 
-def get_weekly_archive_links():
-    html = _url('/shows')
-    
-    # retrieve all the news item links
-    weekly_archives = html.findAll('div',
-        {'class': lambda attr_value: attr_value is not None
-                                    and attr_value == 'context_header previous_show'})
-    
-    items = []
 
-    for weekly_archive in weekly_archives:
-        weekly_archive_text = weekly_archive.find('h2').string.replace('\n', '')
-        logging.info("weekly_archive_text : " + weekly_archive_text)
+def get_web_exclusive_media(url):
+    html = _html(url)
+    media_type = ''
+    media_url = ''
 
-        weekly_archive_onclick = weekly_archive['onclick']
-        start_index = weekly_archive_onclick.find('\'',0)
-        end_index = weekly_archive_onclick.find('?',start_index)
+    we_story_media = json.loads(unicode(html.find(id="story_video").contents[0].contents[0]))
+    we_media_video_url = str(we_story_media['high_res_video'])
 
-        weekly_archive_url = _url(weekly_archive_onclick[start_index+1:end_index])
-        logging.info("weekly_archive_url : " + weekly_archive_url)
+    if we_media_video_url:
+        media_type = 'video'
+        media_url = we_media_video_url
+    else:
+        we_media_audio_url = str(we_story_media['audio'])
+        if we_media_audio_url:
+            media_type = 'audio'
+            media_url = we_media_audio_url
 
-        items.append({
-            'title': weekly_archive_text,
-            'url': weekly_archive_url,            
-        })
+    return {
+        'type': media_type,
+        'url': media_url
+    }
 
-    return [item for item in items if item['title'] and item['url']]
 
 def get_web_exclusives(page):
     '''Returns a list of web exclusive videos. 
     '''
-    url = _url('/categories/19?page=' + str(page))        
-    return get_show_videos(url)
+    url = _html(_url('/categories/web_exclusive'))
+
+    return
 
 
 

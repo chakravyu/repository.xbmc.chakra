@@ -32,14 +32,14 @@ def clear_cache_ctx() :
 def clear_cache() :
     plugin.clear_function_cache()
 
-@plugin.cached(TTL=60*10)
+# @plugin.cached(TTL=60*10)
 @plugin.route('/')
 def index():
     #print 'Cache period : ' + str(get_cache_period())
     #plugin.clear_function_cache()
     return get_root_paths()
 
-@plugin.cached(TTL=60*10)
+# @plugin.cached(TTL=60*10)
 def get_root_paths() :
     weekly_archives = api.get_shows()
     items = [{
@@ -60,9 +60,12 @@ def get_root_paths() :
     return items
 
 
-@plugin.cached(TTL=60*10)
-def get_show_items(url) :
+# @plugin.cached(TTL=60*10)
+def get_show_items(url):
     todays_shows = api.get_show_items(url)
+
+    for show in todays_shows:
+        plugin.log.warning('Show Poster Url : ' + show.poster_url)
 
     items = [{
         'label': todays_show.title,
@@ -78,12 +81,12 @@ def get_show_items(url) :
     } for todays_show in todays_shows]
     return items
 
-@plugin.cached(TTL=60*10)
+# @plugin.cached(TTL=60*10)
 @plugin.route('/Todays Shows/<url>/')
 def show_todays_show_stream(url):
     plugin.set_resolved_url(url)
 
-@plugin.cached(TTL=60*10)
+# @plugin.cached(TTL=60*10)
 @plugin.route('/Weekly Archives')
 def show_weekly_archives() :
     weekly_archives = api.get_shows()
@@ -94,23 +97,23 @@ def show_weekly_archives() :
             items.append(show)
     return items
     
-@plugin.cached(TTL=60*24*7)
+# @plugin.cached(TTL=60*24*7)
 @plugin.route('/Weekly Archives/<url>')
 def show_weekly_archive_stream(url) :
     items = get_show_items(url)
     return plugin.finish(items)
 
-@plugin.cached(TTL=60*24*7)
+# @plugin.cached(TTL=60*24*7)
 @plugin.route('/Web Exclusives/<page>/')
 def show_web_exclusives(page):
-    return show_paged_shows('/categories/19?page=', page);
+    return show_paged_shows('/categories/19?page=', page)
 
-@plugin.cached(TTL=60*24*7)
+# @plugin.cached(TTL=60*24*7)
 @plugin.route('/Amy\'s Column/<page>/')
 def show_amys_columns(page):
-    return show_paged_shows('/categories/11?page=', page);
+    return show_paged_shows('/categories/11?page=', page)
 
-@plugin.cached(TTL=60*24*7)
+# @plugin.cached(TTL=60*24*7)
 @plugin.route('/<path>/<page>/')
 def show_paged_shows(path, page):
     page = int(page)

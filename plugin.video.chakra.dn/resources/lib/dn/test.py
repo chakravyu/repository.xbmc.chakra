@@ -20,12 +20,12 @@ class DNTest(unittest.TestCase):
 		# 	logging.info("show item summary : " + show_item.summary)
 		# 	logging.info('\n')
 
-	def test_api_get__shows(self):
+	def test_api_get_shows(self):
 		shows = api.get_shows()
 		for show in shows:
 			logging.info("show title : " + show.title)
 			logging.info("show url : " + show.url)
-			show_items = api.get_todays_shows(show.url)
+			show_items = api.get_show_items(show.url)
 			for show_item in show_items:
 				logging.info("show item url : " + show_item.url)
 				logging.info("show item media type : " + show_item.media_type)
@@ -47,6 +47,12 @@ class DNTest(unittest.TestCase):
     #
 	# def test_scraper_get_web_exclusives(self):
 	# 	get_todays_show_videos('/categories/19?page=1')
+
+	# def test_api_get_web_exclusive_media(self):
+	# 	web_exclusive = api.get_web_exclusive_media('https://www.democracynow.org/2017/6/7/flyers_rights_pres_trump_plan_to')
+	# 	logging.info("web exclusive media type : " + web_exclusive.type)
+	# 	logging.info("web exclusive media url : " + web_exclusive.url)
+	# 	logging.info('\n')
 
 if __name__ == '__main__':
 	unittest.main()
