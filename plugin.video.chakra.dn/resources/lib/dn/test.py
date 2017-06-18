@@ -20,21 +20,33 @@ class DNTest(unittest.TestCase):
 		# 	logging.info("show item summary : " + show_item.summary)
 		# 	logging.info('\n')
 
-	def test_api_get_shows(self):
-		shows = api.get_shows()
-		for show in shows:
-			logging.info("show title : " + show.title)
-			logging.info("show url : " + show.url)
-			show_items = api.get_show_items(show.url)
-			for show_item in show_items:
-				logging.info("show item url : " + show_item.url)
-				logging.info("show item media type : " + show_item.media_type)
-				logging.info("show item title : " + show_item.title)
-				logging.info("show item poster url : " + show_item.poster_url)
-				logging.info("show item summary : " + show_item.summary)
-				logging.info('\n')
+	# def test_api_get_shows(self):
+	# 	shows = api.get_shows()
+	# 	for show in shows:
+	# 		logging.info("show title : " + show.title)
+	# 		logging.info("show url : " + show.url)
+	# 		show_items = api.get_show_items(show.url)
+	# 		for show_item in show_items:
+	# 			logging.info("show item url : " + show_item.url)
+	# 			logging.info("show item media type : " + show_item.media_type)
+	# 			logging.info("show item title : " + show_item.title)
+	# 			logging.info("show item poster url : " + show_item.poster_url)
+	# 			logging.info("show item summary : " + show_item.summary)
+	# 			logging.info('\n')
 
+	def test_api_get_webex_items(self):
+		webex_items = api.get_story_items('/categories/weekly_column/1')
+		for show_item in webex_items:
 
+			logging.info("story item path : " + show_item.url)
+			logging.info("story item media type : " + show_item.media_type)
+			logging.info("story item title : " + show_item.title)
+			logging.info("story item poster url : " + show_item.poster_url)
+			logging.info("story item summary : " + show_item.summary)
+
+			story_video_url = get_story_video_url(show_item.url)
+			logging.info("story item url : " + story_video_url)
+			logging.info('\n')
 
 	# def test_scraper_get_todays_show_videos(self):
 	# 	get_todays_show_videos('')

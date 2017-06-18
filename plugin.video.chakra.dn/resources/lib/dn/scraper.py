@@ -5,12 +5,12 @@
     This module contains some functions which do the website scraping for the
     API module. You shouldn't have to use this module directly.
 '''
-import logging
-import re,json,os
-from urllib2 import urlopen
-import urllib
+import json
+import re
+from urllib2 import urlopen, HTTPError
 from urlparse import urljoin
-from bs4  import BeautifulSoup as BS
+
+from bs4 import BeautifulSoup as BS
 
 ITEM_URL = 'url'
 ITEM_TITLE = 'title'
@@ -170,37 +170,66 @@ def get_shows():
     return shows
 
 
-def get_web_exclusive_media(url):
-    html = _html(url)
-    media_type = ''
-    media_url = ''
+def get_story_items(webex_path):
 
-    we_story_media = json.loads(unicode(html.find(id="story_video").contents[0].contents[0]))
-    we_media_video_url = str(we_story_media['high_res_video'])
+    try:
+        html = _html(_url(webex_path))
+    except HTTPError as e:
+        if e.code == 404:
+            return []
 
-    if we_media_video_url:
-        media_type = 'video'
-        media_url = we_media_video_url
+    items = []
+
+    story_items = html.findAll('div',
+        {'class': lambda attr_value: attr_value is not None
+               and attr_value.startswith('news_item with_horizontal_image')
+               and len(attr_value) >= len('news_item with_horizontal_image')})
+
+    if not story_items:
+        return []
+
+    for story in story_items:
+        story_path_img = story.find('a',
+            {'data-ga-action': lambda attr_value: attr_value is not None
+                 and attr_value.startswith('Category: Story Image')
+                 and len(attr_value) >= len('Category: Story Image')})
+        story_title = story.find('a',
+            {'data-ga-action': lambda attr_value: attr_value is not None
+                 and attr_value.startswith('Category: Story Headline')
+                 and len(attr_value) >= len('Category: Story Headline')})
+
+        title = story_title.text
+        path = story_path_img['href']
+        img_url = story_path_img.find('img')['src']
+        items.append({
+            ITEM_TITLE: title,
+            ITEM_URL: path,
+            ITEM_MEDIA_TYPE: 'video',
+            ITEM_POSTER_URL: img_url,
+            ITEM_SUMMARY: ''
+        })
+
+    return items
+
+def get_story_video_url(story_path):
+
+    html = _html(_url(story_path))
+
+    story = html.find('div',
+        {'class': lambda attr_value: attr_value is not None
+              and attr_value.startswith('primary_content')
+              and len(attr_value) >= len('primary_content')})
+    story_video = story.find(id="story_video")
+    if story_video:
+        story_video_content = json.loads(unicode(story_video.contents[0].contents[0]))
+        return  str(story_video_content['high_res_video'])
     else:
-        we_media_audio_url = str(we_story_media['audio'])
-        if we_media_audio_url:
-            media_type = 'audio'
-            media_url = we_media_audio_url
-
-    return {
-        'type': media_type,
-        'url': media_url
-    }
-
-
-def get_web_exclusives(page):
-    '''Returns a list of web exclusive videos. 
-    '''
-    url = _html(_url('/categories/web_exclusive'))
-
-    return
-
-
+        story_audio = story.find(id="show_audio")
+        if story_audio:
+            story_audio_content = json.loads(unicode(story_audio.contents[0].contents[0]))
+            return  str(story_audio_content['audio'])
+        else:
+            return ''
 
 
 

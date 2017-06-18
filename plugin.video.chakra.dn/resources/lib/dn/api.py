@@ -27,10 +27,13 @@ class DN(object):
         '''Returns a list of todays shows.'''
         return [Show(**info) for info in scraper.get_show_videos(url)]
 
-    def get_web_exclusive_media(self,url):
-        '''Returns the video from a web exclusive page.'''
-        media = scraper.get_web_exclusive_media(url)
-        return  Media(**media)
+    def get_story_items(self, category_path):
+        '''Returns a list of stories.'''
+        return [Show(**info) for info in scraper.get_story_items(category_path)]
+
+    def get_story_video_url(self, story_path):
+        '''Returns the video url from a story page.'''
+        return scraper.get_story_video_url(story_path)
 
 
 class Media(object):

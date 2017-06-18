@@ -7,7 +7,8 @@ plugin = Plugin()
 
 api = DN()
 
-def get_cache_period() :
+
+def get_cache_period():
 
     choice = plugin.get_setting('cache_period', int);
     if choice == 0 :
@@ -23,14 +24,17 @@ def get_cache_period() :
 
     return 0
 
+
 def clear_cache_ctx() :
     label = 'Clear Cache'
     cc_url = plugin.url_for('clear_cache')
     return (label, actions.background(cc_url))
 
+
 @plugin.route('/context/clear_cache/')
 def clear_cache() :
     plugin.clear_function_cache()
+
 
 # @plugin.cached(TTL=60*10)
 @plugin.route('/')
@@ -38,6 +42,7 @@ def index():
     #print 'Cache period : ' + str(get_cache_period())
     #plugin.clear_function_cache()
     return get_root_paths()
+
 
 # @plugin.cached(TTL=60*10)
 def get_root_paths() :
@@ -48,24 +53,33 @@ def get_root_paths() :
         'context_menu' : [clear_cache_ctx()]
     } for weekly_archive in weekly_archives]
 
-    # items.append({
-    #         'label': 'Web Exclusives',
-    #         'path': plugin.url_for('show_web_exclusives', page='1')
-    #     })
-    # items.append({
-    #         'label': 'Amy\'s Columns',
-    #         'path': plugin.url_for('show_amys_columns', page='1')
-    #     })
+    items.append({
+            'label': 'Web Exclusives',
+            'path': plugin.url_for('show_web_exclusives', page='1')
+        })
+    items.append({
+            'label': 'Columns',
+            'path': plugin.url_for('show_columns', page='1')
+        })
     
     return items
 
 
+# @plugin.cached(TTL=60*24*7)
+@plugin.route('/Weekly Archives/<url>')
+def show_weekly_archive_stream(url):
+    items = get_show_items(url)
+    return plugin.finish(items)
+
+
 # @plugin.cached(TTL=60*10)
 def get_show_items(url):
-    todays_shows = api.get_show_items(url)
+    todays_shows =[]
 
-    for show in todays_shows:
-        plugin.log.warning('Show Poster Url : ' + show.poster_url)
+    if str(url).startswith('/categories'):
+        todays_shows = api.get_story_items(url)
+    else:
+        todays_shows = api.get_show_items(url)
 
     items = [{
         'label': todays_show.title,
@@ -81,37 +95,31 @@ def get_show_items(url):
     } for todays_show in todays_shows]
     return items
 
-# @plugin.cached(TTL=60*10)
+
+# # @plugin.cached(TTL=60*10)
 @plugin.route('/Todays Shows/<url>/')
 def show_todays_show_stream(url):
-    plugin.set_resolved_url(url)
+    if str(url).startswith('http'):
+        plugin.set_resolved_url(url)
+    else:
+        story_media_url = api.get_story_video_url(url)
+        if story_media_url:
+            plugin.set_resolved_url(story_media_url)
+        else:
+            plugin.notify(msg='No video available', title='Notification', delay=5000)
 
-# @plugin.cached(TTL=60*10)
-@plugin.route('/Weekly Archives')
-def show_weekly_archives() :
-    weekly_archives = api.get_shows()
-    items = []
-    for weekly_archive in weekly_archives :
-        shows = show_weekly_archive_stream(weekly_archive.url)
-        for show in shows:
-            items.append(show)
-    return items
-    
-# @plugin.cached(TTL=60*24*7)
-@plugin.route('/Weekly Archives/<url>')
-def show_weekly_archive_stream(url) :
-    items = get_show_items(url)
-    return plugin.finish(items)
 
 # @plugin.cached(TTL=60*24*7)
 @plugin.route('/Web Exclusives/<page>/')
 def show_web_exclusives(page):
-    return show_paged_shows('/categories/19?page=', page)
+    return show_paged_shows('/categories/web_exclusive/', page)
+
 
 # @plugin.cached(TTL=60*24*7)
-@plugin.route('/Amy\'s Column/<page>/')
-def show_amys_columns(page):
-    return show_paged_shows('/categories/11?page=', page)
+@plugin.route('/Columns/<page>/')
+def show_columns(page):
+    return show_paged_shows('/categories/weekly_column/', page)
+
 
 # @plugin.cached(TTL=60*24*7)
 @plugin.route('/<path>/<page>/')
@@ -129,14 +137,14 @@ def show_paged_shows(path, page):
 
     if next_page:
         items.insert(0, {
-            'label': 'Next >>',
-            'path': plugin.url_for('show_paged_shows', path = str(path), page=str(page + 1))
+            'label': 'Next Page ' + str(page + 1) + ' >>',
+            'path': plugin.url_for('show_paged_shows', path=str(path), page=str(page + 1))
         })
 
     if page > 1:
         items.insert(0, {
-            'label': '<< Previous',
-            'path': plugin.url_for('show_paged_shows', path = str(path), page=str(page - 1))
+            'label': '<< Previous Page ' + str(page - 1),
+            'path': plugin.url_for('show_paged_shows', path=str(path), page=str(page - 1))
         })
 
     return plugin.finish(items)

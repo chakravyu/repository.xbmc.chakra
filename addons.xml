@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="plugin.video.chakra.dn" name="DN!" version="2.0.1" provider-name="Cherian Mathew (chakravyu)">
+<addon id="plugin.video.chakra.dn" name="DN!" version="2.0.2" provider-name="Cherian Mathew (chakravyu)">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.xbmcswift2" version="2.4.0"/>
@@ -18,7 +18,7 @@
   </extension>
 </addon>
 
-<addon id="repository.xbmc.chakra" name="Chakravyu's XBMC Addons" version="1.2.1" provider-name="Cherian Mathew (chakravyu)">
+<addon id="repository.xbmc.chakra" name="Chakravyu's XBMC Addons" version="1.2.2" provider-name="Cherian Mathew (chakravyu)">
   <extension point="xbmc.addon.repository" name="Chakravyu' XBMC Addon Repository">
     <info compressed="false">https://github.com/chakravyu/repository.xbmc.chakra/raw/master/addons.xml</info>
     <checksum>https://github.com/chakravyu/repository.xbmc.chakra/raw/master/addons.xml.md5</checksum>
